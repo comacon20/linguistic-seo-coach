@@ -1,98 +1,111 @@
-# Linguistic SEO Coach
+# Linguistic SEO Coach (Vercel Edition)
 
-Automates fluency feedback for agency managers by:
-- monitoring Google Drive `Meet Recordings` for new `.mp4` / `.m4a` calls,
-- accepting pasted or uploaded meeting transcripts (`.txt/.md/.srt/.vtt`),
-- sending raw media directly to Gemini (google-genai SDK) in Thinking Mode,
-- generating coaching on pronunciation, professional language, and SEO-term clarity,
-- tracking progress over time in a Streamlit dashboard.
+Vercel-native app for fluency and SEO communication coaching.
 
-## Tech Stack
-- Frontend: Streamlit + pandas
-- AI Engine: `google-genai`
-- Storage: CSV history (`data/fluency_history.csv`)
-- Source Ingestion: Google Drive API v3
+## Architecture
 
-## Project Files
-- `main.py`: Streamlit dashboard and orchestration pipeline
-- `engine.py`: AI analysis logic and structured output parsing
-- `drive_auth.py`: Google Drive auth + latest recording detection + download helpers
-- `requirements.txt`: dependencies
-- `.gitignore`: protects secrets and local credentials
+- Frontend: Next.js 15 (React, TypeScript)
+- API: Next.js Route Handlers (`/app/api/...`) running on Vercel Functions
+- AI Engine: `@google/genai` (Gemini, Thinking Mode enabled)
+- Data source: Google Drive API (`googleapis`) for latest meeting recording
+- Trend storage: browser localStorage (client-side historical score tracking)
 
-## 1) Prerequisites
-- Python 3.10+
-- Google Cloud project with:
-  - Drive API enabled
-  - Gemini API enabled
-- One auth method for Drive:
-  - Service Account (recommended for server/GitHub), or
-  - OAuth client (`credentials.json`) for local interactive login
+## Features
 
-## 2) Local Setup
+- Transcript analysis mode
+  - Paste transcript or upload `.txt/.md/.srt/.vtt`
+  - Leadership Clarity Score
+  - Words to Practice with phonetic tips
+  - Professional composition rewrites
+  - SEO term clarity feedback
+- Drive latest recording mode
+  - Scans `Meet Recordings` (supports nested folders + shortcuts)
+  - Pulls newest media file and analyzes via Gemini
+- Modern UX dashboard
+  - Responsive layout
+  - Animated sections
+  - Historical trend chart
+
+## Project Structure
+
+- `app/page.tsx`: main dashboard UI
+- `app/api/analyze-transcript/route.ts`: transcript analysis endpoint
+- `app/api/analyze-drive-latest/route.ts`: Drive latest recording endpoint
+- `app/api/health/route.ts`: health check endpoint
+- `lib/server/gemini.ts`: Gemini analysis + file ACTIVE-state retry handling
+- `lib/server/drive.ts`: Drive auth, folder resolution, media discovery/download
+- `lib/server/report-parser.ts`: robust JSON parsing/normalization
+- `lib/types.ts`: shared app types
+
+## Local Development
+
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+npm install
+npm run dev
 ```
 
-Create `.env`:
+Open [http://localhost:3000](http://localhost:3000)
+
+## Required Environment Variables
+
+Set these in `.env.local` for local dev and in Vercel Project Settings for production.
+
 ```bash
+# Gemini
 GOOGLE_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-2.5-pro
+GEMINI_MODEL=gemini-3-flash-preview
 GEMINI_THINKING_BUDGET=1024
 GEMINI_MAX_INLINE_BYTES=18000000
 
-# Optional Drive targeting
+# Drive credentials (recommended for Vercel)
+GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+
+# Optional local fallback (not recommended on Vercel)
+# GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE=/absolute/path/service-account.json
+
+# Optional Drive defaults for UI
 MEET_RECORDINGS_FOLDER=Meet Recordings
 MEET_RECORDINGS_FOLDER_ID=
 GOOGLE_DRIVE_PARENT_FOLDER_ID=
 
-# Drive auth option A: service account (recommended for CI/CD)
-GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON=
-# or:
-# GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE=service-account.json
-
-# Drive auth option B: OAuth local flow
-GOOGLE_DRIVE_OAUTH_CLIENT_SECRETS=credentials.json
-GOOGLE_DRIVE_TOKEN_FILE=token.json
-
-# Optional app data location
-APP_DATA_DIR=data
+# Optional Gemini file-processing tuning
+GEMINI_FILE_PROCESS_TIMEOUT_SECONDS=300
+GEMINI_FILE_PROCESS_POLL_SECONDS=2
+GEMINI_ACTIVE_RETRY_ATTEMPTS=8
+GEMINI_ACTIVE_RETRY_DELAY_SECONDS=2
 ```
 
-Run the app:
+## Google Drive Setup
+
+1. Enable Google Drive API in your Google Cloud project.
+2. Create a service account and JSON key.
+3. Share your target Drive folder (`Meet Recordings`) with the service account email.
+4. Add `GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON` in Vercel env vars.
+
+## Deploy to Vercel
+
+1. Push this repo to GitHub.
+2. Import the repo in Vercel.
+3. Add the environment variables above.
+4. Deploy.
+
+## Build Commands
+
 ```bash
-streamlit run main.py
+npm run typecheck
+npm run build
 ```
 
-## 3) Dashboard Features
-- **Transcript Mode**: paste text or upload transcript files for analysis
-- **Drive Mode**: analyze latest recording from Drive folder
-- **Leadership Clarity Score**: score out of 100 from the latest call
-- **Words to Practice**: categorized phonetic/clarity coaching with practice lines
-- **Professional Composition**: grammar and executive-level rewrites
-- **SEO Context**: clarity checks for terms like Crawl Budget, Entity SEO, Core Web Vitals
-- **Historical Trend**: score and coaching counts over time via pandas charting
+## API Endpoints
 
-## 4) GitHub Deployment and Secrets
-Use repository secrets and expose them as environment variables in your runtime:
-- `GOOGLE_API_KEY`
-- `GEMINI_MODEL` (optional)
-- `GEMINI_THINKING_BUDGET` (optional)
-- `GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON` (recommended for GitHub-hosted deploys)
-- `MEET_RECORDINGS_FOLDER` or `MEET_RECORDINGS_FOLDER_ID`
-- `GOOGLE_DRIVE_PARENT_FOLDER_ID` (optional)
+- `POST /api/analyze-transcript`
+  - body: `{ transcriptText: string, sourceName?: string }`
+- `POST /api/analyze-drive-latest`
+  - body: `{ folderName?: string, parentFolderId?: string, folderIdOverride?: string }`
+- `GET /api/health`
 
-`python-dotenv` loads local `.env`; production uses `os.getenv(...)` seamlessly.
+## Security Notes
 
-## 5) Security Notes
-- Keep `.env`, `credentials.json`, `token.json`, and service-account files out of git.
-- Use least-privilege service accounts and rotate keys regularly.
-- Prefer read-only Drive scope for this app (`drive.readonly`).
-
-## 6) Operational Notes
-- The app keeps a lightweight watcher state at `.cache/drive_watch_state.json`.
-- Downloaded media is stored in `data/recordings/`.
-- Uploaded/pasted transcript snapshots are stored in `data/transcripts/`.
-- Trend history is stored in `data/fluency_history.csv`.
+- Never commit `.env.local` or service-account JSON files.
+- Keep API keys and service account JSON in Vercel encrypted environment variables.
+- Use least-privilege access and rotate credentials regularly.

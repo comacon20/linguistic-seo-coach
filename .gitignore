@@ -5,6 +5,16 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 
+# Node / Next.js
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
 # Virtual environments
 .venv/
 venv/

@@ -1,0 +1,132 @@
+:root {
+  --bg-0: #f4f8f4;
+  --bg-1: #fcf8ef;
+  --bg-2: #fff;
+  --ink-900: #182127;
+  --ink-700: #33414f;
+  --ink-500: #5b6a78;
+  --line-200: #dce6df;
+  --line-300: #c3d1c8;
+  --teal-600: #0e8575;
+  --teal-500: #1c9c8a;
+  --teal-100: #ddf3ef;
+  --gold-500: #d88a28;
+  --gold-100: #fff0db;
+  --salmon-500: #dd6659;
+  --shadow-1: 0 16px 42px rgba(12, 56, 44, 0.08);
+  --shadow-2: 0 6px 14px rgba(8, 31, 24, 0.08);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: var(--ink-900);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(28, 156, 138, 0.12), transparent 35%),
+    radial-gradient(circle at 88% 20%, rgba(216, 138, 40, 0.16), transparent 32%),
+    linear-gradient(140deg, var(--bg-0), var(--bg-1) 60%, #f5f9f2 100%);
+  font-family: 'Avenir Next', 'Avenir', 'Trebuchet MS', 'Helvetica Neue', sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.main-shell {
+  position: relative;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 2.2rem 1rem 3rem;
+}
+
+.ambient-orb {
+  position: fixed;
+  border-radius: 999px;
+  filter: blur(34px);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: floatOrb 10s ease-in-out infinite;
+}
+
+.ambient-orb.a {
+  width: 300px;
+  height: 300px;
+  top: -120px;
+  left: -80px;
+  background: rgba(28, 156, 138, 0.25);
+}
+
+.ambient-orb.b {
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  top: 180px;
+  animation-delay: 2.3s;
+  background: rgba(216, 138, 40, 0.24);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(195, 209, 200, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-1);
+}
+
+.animated-entrance {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: riseIn 0.5s ease forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.08s;
+}
+
+.delay-2 {
+  animation-delay: 0.16s;
+}
+
+.delay-3 {
+  animation-delay: 0.24s;
+}
+
+@keyframes riseIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatOrb {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@media (max-width: 780px) {
+  .main-shell {
+    padding: 1.1rem 0.8rem 2rem;
+  }
+}
