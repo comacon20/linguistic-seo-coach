@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Streamlit and local app data
+.streamlit/
+data/
+.cache/
+
+# Workspace-local folders not part of this app
+.codex/
+ai-videos/
+
+# Secrets and credentials
+.env
+.env.*
+credentials.json
+token.json
+service-account.json
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
